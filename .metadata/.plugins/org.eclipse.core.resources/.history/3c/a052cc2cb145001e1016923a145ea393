@@ -1,0 +1,5 @@
+package com.personalproject.orderservice.config;
+
+public class WebClientConfig {
+
+}

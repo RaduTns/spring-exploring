@@ -1,0 +1,28 @@
+package com.personalproject.orderservice.service;
+
+import java.util.UUID;
+
+import org.springframework.stereotype.Service;
+
+import com.personalproject.orderservice.dto.OrderLineItemsDto;
+import com.personalproject.orderservice.dto.OrderRequest;
+import com.personalproject.orderservice.model.Order;
+import com.personalproject.orderservice.model.OrderLineItems;
+
+@Service
+public class OrderService {
+
+	public void placeOrder(OrderRequest orderRequest) {
+		Order order = new Order();
+		order.setOrderNumber(UUID.randomUUID().toString());
+		
+		orderRequest.getOrderLineItemsDtoList()
+		.stream()
+		.map(orderLineItemsDto -> mapToDto(orderLineItemsDto));
+	}
+
+	private OrderLineItems mapToDto(OrderLineItemsDto orderLineItemsDto) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+}

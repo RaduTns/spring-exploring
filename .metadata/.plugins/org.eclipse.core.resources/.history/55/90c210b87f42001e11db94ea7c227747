@@ -1,0 +1,112 @@
+package com.personalproject.productservice;
+
+import java.math.BigDecimal;
+
+import javax.net.ssl.SSLEngineResult.Status;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.testcontainers.containers.MongoDBContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
+import org.springframework.test.web.servlet.result.*;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.personalproject.productservice.dto.ProductRequest;
+import com.personalproject.productservice.model.Product;
+import com.personalproject.productservice.repository.ProductRepository;
+
+@SpringBootTest
+@Testcontainers
+@AutoConfigureMockMvc
+class ProductServiceApplicationTests {
+
+	@Container
+	static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:4.4.2");
+	
+	@Autowired
+	private MockMvc mockMvc;
+	
+	@Autowired
+	private ObjectMapper objectMapper;
+	
+	@Autowired
+	private ProductRepository productRepository;
+	
+	@DynamicPropertySource
+	static void setProperties(DynamicPropertyRegistry dymDynamicPropertyRegistry) {
+		dymDynamicPropertyRegistry.add("spring.data.mongodb.uri", mongoDBContainer::getReplicaSetUrl);
+	}
+	
+	
+	@Test
+	void shouldCreateProduct() throws Exception {
+		ProductRequest productRequest = getProductRequest("Iphone 14", "Iphone 14", BigDecimal.valueOf(1200));
+		String productRequestAsString = objectMapper.writeValueAsString(productRequest);
+		
+		mockMvc.perform(MockMvcRequestBuilders.post("/api/product")
+					.contentType(MediaType.APPLICATION_JSON)
+					.content(productRequestAsString))
+				.andExpect(MockMvcResultMatchers.status().isCreated());
+		Assertions.assertEquals(1, productRepository.findAll().size());
+	}
+
+	private ProductRequest getProductRequest(String name, String description, BigDecimal price) {
+	    return ProductRequest.builder()
+	            .name(name)
+	            .description(description)
+	            .price(price)
+	            .build();
+	}
+	
+	@Test
+	void shouldRetrieveProducts() throws Exception {
+	    // Create and save products to the repository before testing the retrieval
+	    ProductRequest productRequest1 = getProductRequest("Iphone 14", "Description 1", BigDecimal.valueOf(1400));
+	    ProductRequest productRequest2 = getProductRequest("Samsung Galaxy", "Description 2", BigDecimal.valueOf(1200));
+
+	    // Create the first product
+	    mockMvc.perform(MockMvcRequestBuilders.post("/api/product")
+	                .contentType(MediaType.APPLICATION_JSON)
+	                .content(objectMapper.writeValueAsString(productRequest1)))
+	            .andExpect(MockMvcResultMatchers.status().isCreated());
+
+	    // Create the second product
+	    mockMvc.perform(MockMvcRequestBuilders.post("/api/product")
+	                .contentType(MediaType.APPLICATION_JSON)
+	                .content(objectMapper.writeValueAsString(productRequest2)))
+	            .andExpect(MockMvcResultMatchers.status().isCreated());
+
+	    // Perform the GET request to retrieve all products
+	    mockMvc.perform(MockMvcRequestBuilders.get("/api/product"))
+	            .andExpect(MockMvcResultMatchers.status().isOk())
+	            .andExpect(MockMvcResultMatchers.jsonPath("$").isArray())
+	            .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(3)) // Assert array length
+
+	            // Assert properties of the first product
+	            .andExpect(MockMvcResultMatchers.jsonPath("$[0].name").value(productRequest1.getName()))
+	            .andExpect(MockMvcResultMatchers.jsonPath("$[0].description").value(productRequest1.getDescription()))
+	            .andExpect(MockMvcResultMatchers.jsonPath("$[0].price").value(productRequest1.getPrice()))
+
+	            // Assert properties of the second product
+	            .andExpect(MockMvcResultMatchers.jsonPath("$[1].name").value(productRequest2.getName()))
+	            .andExpect(MockMvcResultMatchers.jsonPath("$[1].description").value(productRequest2.getDescription()))
+	            .andExpect(MockMvcResultMatchers.jsonPath("$[1].price").value(productRequest2.getPrice()));
+	}
+
+
+
+}

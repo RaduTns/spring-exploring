@@ -1,0 +1,6 @@
+package com.personalproject.orderservice.dto;
+
+public class OrderRequest {
+
+	
+}

@@ -1,0 +1,5 @@
+package com.personalproject.orderservice.service;
+
+public class OrderService {
+
+}

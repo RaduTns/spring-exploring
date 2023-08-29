@@ -1,0 +1,15 @@
+package com.personalproject.inventoryservice.service;
+
+import org.springframework.stereotype.Service;
+
+import com.personalproject.inventoryservice.repository.InventoryRepository;
+
+@Service
+public class InventoryService {
+
+	private final InventoryRepository inventoryRepository;
+	
+	public boolean isInStock(String skuCode) {
+		
+	}
+}

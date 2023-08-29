@@ -1,0 +1,5 @@
+package com.personalproject.orderservice.repository;
+
+public interface OrderRepository {
+
+}

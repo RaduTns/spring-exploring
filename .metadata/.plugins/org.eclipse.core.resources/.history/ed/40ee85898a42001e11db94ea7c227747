@@ -1,0 +1,15 @@
+package com.personalproject.orderservice.model;
+
+import javax.persistence.Entity;
+import javax.persistence.Table;
+
+import lombok.Getter;
+import lombok.Setter;
+
+@Entity
+@Table(name = "t_orders")
+@Getter
+@Setter
+public class Order {
+
+}

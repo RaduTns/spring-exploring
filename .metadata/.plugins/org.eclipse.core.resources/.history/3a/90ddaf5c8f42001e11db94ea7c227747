@@ -1,0 +1,14 @@
+package com.personalproject.orderservice.service;
+
+import org.springframework.stereotype.Service;
+
+import com.personalproject.orderservice.dto.OrderRequest;
+
+@Service
+public class OrderService {
+
+	public void placeOrder(OrderRequest orderRequest) {
+		Order order = new Order();
+		
+	}
+}

@@ -1,0 +1,5 @@
+package com.personalproject.inventoryservice.model;
+
+public class Inventory {
+
+}
